@@ -1,0 +1,33 @@
+version: '3.8'
+
+services:
+  mysql:
+    image: mysql:latest
+    container_name: mysql_container
+    command: --local-infile=1 --secure-file-priv=""
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./sql/init.sql:/docker-entrypoint-initdb.d/init.sql
+      - ./data:/csv
+    networks:
+      - network_metabase_mysql
+
+  metabase:
+    image: metabase/metabase
+    container_name: metabase_container
+    ports:
+      - "3000:3000"
+    depends_on:
+      - mysql
+    networks:
+      - network_metabase_mysql
+
+volumes:
+  mysql_data:
+
+networks:
+  network_metabase_mysql:
